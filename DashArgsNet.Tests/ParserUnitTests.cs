@@ -73,7 +73,7 @@ namespace DashArgsNet.Tests
         [Fact]
         public void ParserExceptionTest()
         {
-            string data = "42.5";
+            string data = "42m";
 
             Assert.Throws<FormatException>(() => ArgParser.IntParser(data));
             Assert.Throws<FormatException>(() => ArgParser.Int16Parser(data));
