@@ -12,7 +12,7 @@ namespace DashArgsNet
         object DoParse(string data);
     }
 
-    class ArgRule<TResult> : IArgRule
+    public class ArgRule<TResult> : IArgRule
     {
         private string Name;
         private List<string> Aliases = new List<string>();
