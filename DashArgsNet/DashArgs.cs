@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,7 +45,7 @@ namespace DashArgsNet
                             Console.WriteLine($"WARN - Duplicate argument: {argsList[i]}");
                         }
 
-                        if (i + 1 < argsList.Count && !argsList[i + 1].StartsWith("-"))
+                        if (i + 1 < argsList.Count)
                         {
                             parsedArgs[rule.GetName()] = rule.DoParse(argsList[i + 1]);
                         }
