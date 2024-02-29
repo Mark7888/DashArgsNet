@@ -32,6 +32,9 @@ dashArgs.Parse();
 // Retrieve values
 int value1 = dashArgs.Get<int>("value1");
 string value2 = dashArgs.Get<string>("value2");
+
+// You can also check if the variable is set
+bool isValue1Set = dashArgs.IsSet("value1");
 ```
 
 ## Default Parsers

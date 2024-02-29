@@ -73,6 +73,11 @@ namespace DashArgsNet
             }
         }
 
+        public bool IsSet(string name)
+        {
+            return parsedArgs.ContainsKey(name);
+        }
+
         public T Get<T>(string name)
         {
             if (parsedArgs.ContainsKey(name))
