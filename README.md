@@ -89,4 +89,75 @@ MyObject myValue = dashArgs.Get<MyObject>("my-value");
 
 Feel free to experiment with custom parsers to handle unique data types in your applications.
 
-Enjoy using DashArgsNet for easy and efficient command-line argument parsing in your .NET projects!
+## Required Arguments
+
+DashArgsNet supports specifying required arguments for your command-line application. If an argument is marked as required but not found during parsing, DashArgsNet will throw a `MissingRequiredArgumentException`. To declare an argument as required, use the `required` parameter when adding a rule, as demonstrated in the example below:
+
+```csharp
+// Usage with a required argument
+DashArgs dashArgs = new DashArgs(args);
+
+// Add a rule for parsing a required integer argument
+dashArgs.AddRule(new ArgRule<int>("value1", ArgParser.IntParser, required: true));
+
+// Parse the arguments
+dashArgs.Parse();
+
+// Retrieve the required value
+int value1 = dashArgs.Get<int>("value1");
+```
+
+By setting `required: true`, you ensure that the specified argument must be present in the command-line input. If the required argument is not found, a `MissingRequiredArgumentException` will be thrown, allowing you to handle missing required arguments in your application.
+
+## Exceptions
+
+### When Using `dashArgs.Parse()`
+
+- **MissingRequiredArgumentException:**
+  - Description: Thrown when one or more required arguments are missing in the command-line input.
+  - Example:
+    ```csharp
+    try
+    {
+        dashArgs.Parse();
+    }
+    catch (MissingRequiredArgumentException ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        // Handle missing required arguments
+    }
+    ```
+
+### When Using `dashArgs.Get<T>("value1")`
+
+- **TypeMismatchException:**
+  - Description: Thrown when the type `T` requested in `dashArgs.Get<T>("value1")` does not match the value returned by the parser specified in the corresponding `ArgRule`.
+  - Example:
+    ```csharp
+    try
+    {
+        int value1 = dashArgs.Get<int>("value1");
+    }
+    catch (TypeMismatchException ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        // Handle type mismatch
+    }
+    ```
+
+- **ArgumentException:**
+  - Description: Thrown when the specified argument name (e.g., "value1") in `dashArgs.Get<T>("value1")` is not found in the parsed command-line arguments.
+  - Example:
+    ```csharp
+    try
+    {
+        int value1 = dashArgs.Get<int>("value1");
+    }
+    catch (ArgumentException ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        // Handle missing argument
+    }
+    ```
+
+### Enjoy using DashArgsNet for easy and efficient command-line argument parsing in your .NET projects!
