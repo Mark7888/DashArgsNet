@@ -1,4 +1,3 @@
-[![publish](https://github.com/Mark7888/DashArgsNet/actions/workflows/publish.yml/badge.svg)](https://github.com/Mark7888/DashArgsNet/actions/workflows/publish.yml)
 # DashArgsNet - Command-Line Argument Parsing Library for .NET
 
 DashArgsNet is a lightweight and flexible command-line argument parsing library for .NET, compatible with .NET Standard 2.0. With DashArgsNet, you can easily handle command-line arguments and retrieve values based on specified rules. This documentation provides a quick guide on how to install and use DashArgsNet, along with details on available default parsers and instructions on creating custom parsers.
@@ -113,6 +112,65 @@ int value1 = dashArgs.Get<int>("value1");
 
 By setting `required: true`, you ensure that the specified argument must be present in the command-line input. If the required argument is not found, a `MissingRequiredArgumentException` will be thrown, allowing you to handle missing required arguments in your application.
 
+## CompositeArgRule - Handling Multiple Rules
+
+DashArgsNet introduces the `CompositeArgRule` to handle scenarios where you want to specify multiple rules and ensure that at least one of them is fulfilled during parsing. This is particularly useful when you have different valid ways of providing an argument.
+
+### Adding Rules to a `CompositeArgRule`
+
+You can add rules to a `CompositeArgRule` either within the constructor or using a separate method. The rules should be instances of `ArgRule`. The `isRequired` field in individual `ArgRule` instances is ignored when used within a `CompositeArgRule`.
+
+#### Example 1: Adding Rules within the Constructor
+
+```csharp
+// Creating a CompositeArgRule with rules added in the constructor
+CompositeArgRule compositeArgRule = new CompositeArgRule(
+    new ArgRule<int>("test1", ArgParser.IntParser),
+    new ArgRule<int>("test2", ArgParser.IntParser)
+);
+```
+
+#### Example 2: Adding Rules with a Separate Method
+
+```csharp
+// Creating a CompositeArgRule and adding rules using a separate method
+CompositeArgRule compositeArgRule = new CompositeArgRule();
+compositeArgRule.AddRule(new ArgRule<int>("test1", ArgParser.IntParser));
+compositeArgRule.AddRule(new ArgRule<int>("test2", ArgParser.IntParser));
+```
+
+### Usage of `CompositeArgRule`
+
+When using a `CompositeArgRule`, at least one of the contained rules must be fulfilled during parsing; otherwise, a `MissingAllCompositeArgumentsException` will be thrown.
+
+```csharp
+// Instantiate DashArgs with command-line arguments
+DashArgs dashArgs = new DashArgs(args);
+
+// Create a CompositeArgRule with multiple rules
+CompositeArgRule compositeArgRule = new CompositeArgRule(
+    new ArgRule<int>("test1", ArgParser.IntParser),
+    new ArgRule<int>("test2", ArgParser.IntParser)
+);
+
+// Add the CompositeArgRule to DashArgs
+dashArgs.AddRule(compositeArgRule);
+
+// Parse the arguments
+dashArgs.Parse();
+
+// Retrieve values based on fulfilled rules
+if (dashArgs.IsSet("test1")) {
+    int test1Value = dashArgs.Get<int>("test1");
+    // Do something with the value
+}
+if (dashArgs.IsSet("test2"))
+{
+    int test2Value = dashArgs.Get<int>("test2");
+    // Do something with the value
+}
+```
+
 ## Exceptions
 
 ### When Using `dashArgs.Parse()`
@@ -131,6 +189,21 @@ By setting `required: true`, you ensure that the specified argument must be pres
         // Handle missing required arguments
     }
     ```
+
+- **MissingAllCompositeArgumentsException:**
+   - Description: Thrown when using a `CompositeArgRule`, and all of its contained rules are missing in the command-line input.
+   - Example Usage:
+     ```csharp
+    try
+    {
+        dashArgs.Parse();
+    }
+    catch (MissingAllCompositeArgumentsException ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        // Handle missing required arguments
+    }
+     ```
 
 ### When Using `dashArgs.Get<T>("value1")`
 
