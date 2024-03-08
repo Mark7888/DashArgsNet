@@ -12,6 +12,15 @@ namespace DashArgsNet
         { }
     }
 
+    public class MissingAllCompositeArgumentsException : Exception
+    {
+        public MissingAllCompositeArgumentsException(string[] missing) : base($"Missing required arguments: '{string.Join(", ", missing)}'")
+        { }
+
+        public MissingAllCompositeArgumentsException(List<string> missing) : base($"Missing required arguments: '{string.Join(", ", missing)}'")
+        { }
+    }
+
     public class ArgumentNotFoundException : Exception
     {
         public ArgumentNotFoundException(string name) : base($"No argument with name '{name}' found")
