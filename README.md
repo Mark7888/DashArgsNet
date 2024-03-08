@@ -1,3 +1,4 @@
+[![publish](https://github.com/Mark7888/DashArgsNet/actions/workflows/publish.yml/badge.svg)](https://github.com/Mark7888/DashArgsNet/actions/workflows/publish.yml)
 # DashArgsNet - Command-Line Argument Parsing Library for .NET
 
 DashArgsNet is a lightweight and flexible command-line argument parsing library for .NET, compatible with .NET Standard 2.0. With DashArgsNet, you can easily handle command-line arguments and retrieve values based on specified rules. This documentation provides a quick guide on how to install and use DashArgsNet, along with details on available default parsers and instructions on creating custom parsers.
