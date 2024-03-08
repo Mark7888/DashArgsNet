@@ -4,7 +4,12 @@ using System.Linq;
 
 namespace DashArgsNet
 {
-    public interface IArgRule
+    public interface IRule
+    {
+        List<string> CheckRequired(List<string> parsedList);
+    }
+
+    public interface IArgRule : IRule
     {
         bool isRequired { get; }
         string GetName();
@@ -18,8 +23,6 @@ namespace DashArgsNet
         private List<string> Aliases = new List<string>();
         private readonly Func<string, TResult> parserFunction;
         public bool isRequired { get; }
-
-        bool IArgRule.isRequired => isRequired;
 
         public ArgRule(string name, Func<string, TResult> handler, bool required = false)
         {
@@ -53,6 +56,16 @@ namespace DashArgsNet
             List<string> result = Aliases.Select(a => $"-{a}").ToList();
             result.Add($"--{Name}");
             return result;
+        }
+
+        public List<string> CheckRequired(List<string> parsedList)
+        {
+            if (isRequired && !parsedList.Contains(Name))
+            {
+                return new List<string> { Name };
+            }
+
+            return new List<string> { };
         }
     }
 }

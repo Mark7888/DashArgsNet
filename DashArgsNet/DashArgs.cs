@@ -7,7 +7,7 @@ namespace DashArgsNet
     public class DashArgs
     {
         private List<string> argsList = new List<string>();
-        List<IArgRule> argRules = new List<IArgRule>();
+        List<IRule> argRules = new List<IRule>();
         public bool warnDuplicates = true;
         Dictionary<string, object> parsedArgs = new Dictionary<string, object>();
 
@@ -22,12 +22,21 @@ namespace DashArgsNet
             argsList = args.ToList();
         }
 
-        public DashArgs(params IArgRule[] rules)
+        public DashArgs(List<string> args, params IRule[] rules)
         {
+            argsList = args;
+
             argRules.AddRange(rules);
         }
 
-        public void AddRule(IArgRule rule)
+        public DashArgs(string[] args, params IRule[] rules)
+        {
+            argsList = args.ToList();
+
+            argRules.AddRange(rules);
+        }
+
+        public void AddRule(IRule rule)
         {
             argRules.Add(rule);
         }
@@ -38,20 +47,33 @@ namespace DashArgsNet
             {
                 foreach (var rule in argRules)
                 {
-                    if (rule.GetAliases().Contains(argsList[i]))
+                    List<IArgRule> singularRules = new List<IArgRule>();
+                    if (rule is CompositeArgRule compositeRule)
                     {
-                        if (parsedArgs.ContainsKey(rule.GetName()) && warnDuplicates)
-                        {
-                            Console.WriteLine($"WARN - Duplicate argument: {argsList[i]}");
-                        }
+                        singularRules.AddRange(compositeRule.GetRules().ConvertAll(r => (IArgRule)r));
+                    }
+                    else if (rule is IArgRule singularRule)
+                    {
+                        singularRules.Add(singularRule);
+                    }
 
-                        if (i + 1 < argsList.Count)
+                    foreach (var singularRule in singularRules)
+                    {
+                        if (singularRule.GetAliases().Contains(argsList[i]))
                         {
-                            parsedArgs[rule.GetName()] = rule.DoParse(argsList[i + 1]);
-                        }
-                        else
-                        {
-                            parsedArgs[rule.GetName()] = true;
+                            if (parsedArgs.ContainsKey(singularRule.GetName()) && warnDuplicates)
+                            {
+                                Console.WriteLine($"WARN - Duplicate argument: {argsList[i]}");
+                            }
+
+                            if (i + 1 < argsList.Count)
+                            {
+                                parsedArgs[singularRule.GetName()] = singularRule.DoParse(argsList[i + 1]);
+                            }
+                            else
+                            {
+                                parsedArgs[singularRule.GetName()] = true;
+                            }
                         }
                     }
                 }
@@ -61,10 +83,7 @@ namespace DashArgsNet
             List<string> missingRequired = new List<string>();
             foreach (var rule in argRules)
             {
-                if (rule.isRequired && !parsedArgs.ContainsKey(rule.GetName()))
-                {
-                    missingRequired.Add(rule.GetName());
-                }
+                missingRequired.AddRange(rule.CheckRequired(parsedArgs.Keys.ToList()));
             }
 
             if (missingRequired.Count != 0)
